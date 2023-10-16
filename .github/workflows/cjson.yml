@@ -30,7 +30,8 @@ jobs:
       - name: Get Deps (LuaJIT)
         shell: bash
         # if: steps.cache-Lua.outputs.cache-hit != 'true'
-        run: CI/get_luajit.${{runner.os}}.sh openmw-deps
+        run: |
+          ${{ runner.os == 'Linux' && 'sudo' || '' }} CI/get_luajit.${{runner.os}}.sh openmw-deps
 
       - name: Configure
         shell: bash
