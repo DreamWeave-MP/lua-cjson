@@ -15,9 +15,6 @@ jobs:
         build_type: [Release, RelWithDebInfo, MinSizeRel, Debug]
         target_system: [ windows-2022 ]
     runs-on: ${{ matrix.target_system }}
-    env:
-      build_extension: ${{ matrix.target_system == 'windows-2022' && '.dll' || '.so' }}
-      # BUILD_DIR: $(pwd | tr \ /)
 
     steps:
       - uses: actions/checkout@v4
@@ -42,15 +39,21 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           cmake --build . --config ${{ matrix.build_type }}
-          echo ${{ github.workspace }}
-          mv ${{ github.workspace }}/${{ matrix.build_type }}/cjson${{ env.build_extension }} ${{ github.workspace}}/cjson-${{ matrix.build_type }}${{ env.build_extension }}
+
+        -name: Move Release Files
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
+        if: runner.os == "Windows"
+        run: |
+          mv ${{ github.workspace }}/${{ matrix.build_type }}/cjson.dll ${{ github.workspace }}/cjson-${{ matrix.build_type }}.dll
+        if: runner.os != "Windows"
+        run: |
+          mv ${{ github.workspace }}/cjson.so ${{ github.workspace }}/cjson-${{ matrix.build_type }}.so
         uses: softprops/action-gh-release@v1
         with:
           tag_name: Stable-CI
-          files: ${{ github.workspace }}/cjson-${{ matrix.build_type }}${{ env.build_extension }}
+          files: ${{ github.workspace }}/cjson-${{ matrix.build_type }}${{ runner.os == 'Windows' && '.dll' || '.so' }}
           body: |
             CI Build for Dreamweave IO2 fork
 
@@ -58,5 +61,8 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v3
         with:
-          path: ${{ github.workspace }}/cjson-${{ matrix.build_type }}${{ env.build_extension }}
           name: cjson-${{ matrix.build_type }}-${{matrix.target_system}}
+          if: runner.os == "Windows"
+          path: ${{ github.workspace }}/${{ matrix.build_type }}/cjson.dll
+          if: runner.os != "Windows"
+          path: ${{ github.workspace }}/cjson.so
