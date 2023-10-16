@@ -1,0 +1,78 @@
+name: CJSON-Main
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  CJSON_MASTER:
+    strategy:
+      matrix:
+        build_type: [Release, RelWithDebInfo, MinSizeRel, Debug]
+        target_system: [ ubuntu-22.04, windows-2022 ]
+    runs-on: ${{ matrix.target_system }}
+    env:
+      BUILD_EXT: ${{ matrix.target_system == 'windows-2022' && '.dll' || '.so' }}
+      BUILD_DIR: ${{ matrix.target_system == 'windows-2022' && 'D:/a/lua-cjson/lua-cjson' || '/home/runner/work/lua-cjson/lua-cjson' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prime ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.target_system }}-${{ matrix.build_type }}
+          max-size: 1000M
+
+      - name: Cache LuaJIT
+        id: cache-Lua
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ runner.os == 'Linux' && 'apt-cache' || 'LuaJIT' }}
+          key: ${{ runner.os }}-Lua
+
+      - name: Get Deps (LuaJIT)
+        shell: bash
+        if: steps.cache-Lua.outputs.cache-hit != 'true'
+        run: |
+          ${{ runner.os == 'Linux' && 'sudo' || '' }} CI/get_luajit.${{runner.os}}.sh openmw-deps
+
+      - name: Configure
+        shell: bash
+        run: |
+          LUA_DIR=LuaJIT/ cmake .
+
+      - name: Build
+        run: |
+          cmake --build . --config ${{ matrix.build_type }}
+
+      - name: Prep Windows Release
+        if: runner.os == 'Windows'
+        run: |
+          mv ${{ env.BUILD_DIR }}/${{ matrix.build_type }}/cjson.dll ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}.dll
+
+      - name: Prep Linux Release
+        if: runner.os != 'Windows'
+        run: |
+          mv ${{ env.BUILD_DIR }}/cjson.so ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}.so
+
+      - name: Upload Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: Stable-CI
+          files: ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}${{ env.BUILD_EXT }}
+          body: |
+            CI Build for Dreamweave IO2 fork
+
+      - name: Upload Artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v3
+        with:
+          name: cjson-${{ matrix.build_type }}-${{matrix.target_system}}
+          path: ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}${{ env.BUILD_EXT }}
