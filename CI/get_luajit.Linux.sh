@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-su
-
 print_help() {
   echo "usage: $0 [group]..."
   echo
