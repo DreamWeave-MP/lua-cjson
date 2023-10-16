@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.target_system }}
     env:
       build_extension: ${{ matrix.target_system == 'windows-2022' && '.dll' || '.so' }}
-      # BUILD_DIR: D:/a/Lua-io2/Lua-io2/${{ matrix.build_type}}/
+      BUILD_DIR: $(pwd)/${{ matrix.target_system == 'windows-2022' && ${{matrix.build_type }} || '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -41,14 +41,15 @@ jobs:
       - name: Build
         run: |
           cmake --build . --config ${{ matrix.build_type }}
-          # mv ${{ env.BUILD_DIR }}/cjson${{ matrix.build_extension }} ${{ env.BUILD_DIR }}/cjson${{ matrix.build_type }}${{ env.build_extension }}
+          echo ${{ env.BUILD_DIR }}
+          mv ${{ env.BUILD_DIR }}/cjson${{ matrix.build_extension }} ${{ env.BUILD_DIR}}/cjson-${{ matrix.build_type }}${{ env.build_extension }}
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: Stable-CI
-          files: ${{ env.BUILD_DIR }}/cjson${{ matrix.build_type }}${{ env.build_extension }}
+          files: ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}${{ env.build_extension }}
           body: |
             CI Build for Dreamweave IO2 fork
 
@@ -56,5 +57,5 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v3
         with:
-          path: ${{ env.BUILD_DIR }}/cjson${{ matrix.build_type }}${{ env.build_extension }}
+          path: ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}${{ env.build_extension }}
           name: cjson-${{ matrix.build_type }}
