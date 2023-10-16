@@ -28,9 +28,14 @@ jobs:
           key: ${{ matrix.target_system }}-${{ matrix.build_type }}
           max-size: 1000M
 
+      - name: Get Deps (LuaJIT)
+        shell: bash
+        # if: steps.cache-Lua.outputs.cache-hit != 'true'
+        run: CI/get_deps.sh
+
       - name: Configure
         shell: bash
-        run: cmake .
+        run: LUA_DIR=LuaJIT/ cmake .
 
       - name: Build
         run: |
