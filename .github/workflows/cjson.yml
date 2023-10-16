@@ -15,6 +15,8 @@ jobs:
         build_type: [Release, RelWithDebInfo, MinSizeRel, Debug]
         target_system: [ windows-2022 ]
     runs-on: ${{ matrix.target_system }}
+    env:
+      BUILD_EXT: ${{ runner.os == 'Windows' && '.dll' || '.so' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -40,10 +42,12 @@ jobs:
         run: |
           cmake --build . --config ${{ matrix.build_type }}
 
-      - name: Move Release Files
+      - name: Prep Windows Release
         if: runner.os == "Windows"
         run: |
           mv ${{ github.workspace }}/${{ matrix.build_type }}/cjson.dll ${{ github.workspace }}/cjson-${{ matrix.build_type }}.dll
+
+      - name: Prep Linux Release
         if: runner.os != "Windows"
         run: |
           mv ${{ github.workspace }}/cjson.so ${{ github.workspace }}/cjson-${{ matrix.build_type }}.so
@@ -53,7 +57,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: Stable-CI
-          files: ${{ github.workspace }}/cjson-${{ matrix.build_type }}${{ runner.os == 'Windows' && '.dll' || '.so' }}
+          files: ${{ github.workspace }}/cjson-${{ matrix.build_type }}${{ env.BUILD_EXT }}
           body: |
             CI Build for Dreamweave IO2 fork
 
@@ -62,7 +66,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: cjson-${{ matrix.build_type }}-${{matrix.target_system}}
-          if: runner.os == "Windows"
-          path: ${{ github.workspace }}/${{ matrix.build_type }}/cjson-${{ matrix.build_type }}.dll
-          if: runner.os != "Windows"
-          path: ${{ github.workspace }}/cjson-${{ matrix.build_type }}.so
+          path: ${{ github.workspace }}/cjson-${{ matrix.build_type }}${{ env.BUILD_EXT }}
