@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.target_system }}
     env:
       build_extension: ${{ matrix.target_system == 'windows-2022' && '.dll' || '.so' }}
-      BUILD_DIR: $(pwd)
+      BUILD_DIR: pwd | tr \ /
 
     steps:
       - uses: actions/checkout@v4
