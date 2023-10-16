@@ -27,9 +27,17 @@ jobs:
           key: ${{ matrix.target_system }}-${{ matrix.build_type }}
           max-size: 1000M
 
+      - name: Cache LuaJIT
+        id: cache-Lua
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ runner.os == 'Linux' && 'apt-cache' || 'LuaJIT' }}
+          key: ${{ runner.os }}-Lua
+
       - name: Get Deps (LuaJIT)
         shell: bash
-        # if: steps.cache-Lua.outputs.cache-hit != 'true'
+        if: steps.cache-Lua.outputs.cache-hit != 'true'
         run: |
           ${{ runner.os == 'Linux' && 'sudo' || '' }} CI/get_luajit.${{runner.os}}.sh openmw-deps
 
@@ -39,7 +47,6 @@ jobs:
           LUA_DIR=LuaJIT/ cmake .
 
       - name: Build
-        # if: runner.os == 'Windows'
         run: |
           cmake --build . --config ${{ matrix.build_type }}
 
