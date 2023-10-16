@@ -16,7 +16,7 @@ jobs:
         target_system: [ windows-2022 ]
     runs-on: ${{ matrix.target_system }}
     env:
-      BUILD_EXT: ${{ runner.os == 'Windows' && '.dll' || '.so' }}
+      BUILD_EXT: ${{ matrix.target_system == 'windows-2022' && '.dll' || '.so' }}
 
     steps:
       - uses: actions/checkout@v4
