@@ -37,7 +37,6 @@ jobs:
           cmake --build . --config ${{ matrix.build_type }}
           echo ${{ env.build_extension }}
           # mv ${{ env.BUILD_DIR }}/io2.dll ${{ env.BUILD_DIR }}/io2-${{ matrix.build_type }}.dll
-        env:
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
