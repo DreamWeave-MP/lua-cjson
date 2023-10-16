@@ -1,12 +1,5 @@
 set -e
 
-# if [ -z $1 ]; then
-#    echo "Invalid dependency args provided!"
-#    exit 22
-# fi
-
-# TARGET_SYSTEM=$(echo $1 | cut -f 1 -d '-' )
-
 download() {
     if [ $# -lt 3 ]; then
 	echo "Invalid parameters to download."

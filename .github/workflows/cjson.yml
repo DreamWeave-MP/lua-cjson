@@ -30,7 +30,7 @@ jobs:
       - name: Get Deps (LuaJIT)
         shell: bash
         # if: steps.cache-Lua.outputs.cache-hit != 'true'
-        run: CI/get_deps.sh ${{ matrix.target_system }}
+        run: CI/get_deps.${{runner.os}}.sh
 
       - name: Configure
         shell: bash
