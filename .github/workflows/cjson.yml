@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.target_system }}
     env:
       build_extension: ${{ matrix.target_system == 'windows-2022' && '.dll' || '.so' }}
-      BUILD_DIR: $(pwd)/${{ matrix.target_system == 'windows-2022' && ${{matrix.build_type }} || '' }}
+      BUILD_DIR: $(pwd)/
 
     steps:
       - uses: actions/checkout@v4
@@ -39,10 +39,11 @@ jobs:
           LUA_DIR=LuaJIT/ cmake .
 
       - name: Build
+        if: runner.os == 'Windows'
         run: |
           cmake --build . --config ${{ matrix.build_type }}
           echo ${{ env.BUILD_DIR }}
-          mv ${{ env.BUILD_DIR }}/cjson${{ matrix.build_extension }} ${{ env.BUILD_DIR}}/cjson-${{ matrix.build_type }}${{ env.build_extension }}
+          mv ${{ env.BUILD_DIR }}/${{ matrix.build_type }}/cjson${{ matrix.build_extension }} ${{ env.BUILD_DIR}}/cjson-${{ matrix.build_type }}${{ env.build_extension }}
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
@@ -58,4 +59,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}${{ env.build_extension }}
-          name: cjson-${{ matrix.build_type }}
+          name: cjson-${{ matrix.build_type }}-${{matrix.target_system}}
