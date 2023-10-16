@@ -43,12 +43,12 @@ jobs:
           cmake --build . --config ${{ matrix.build_type }}
 
       - name: Prep Windows Release
-        if: runner.os == "Windows"
+        if: runner.os == 'Windows'
         run: |
           mv ${{ github.workspace }}/${{ matrix.build_type }}/cjson.dll ${{ github.workspace }}/cjson-${{ matrix.build_type }}.dll
 
       - name: Prep Linux Release
-        if: runner.os != "Windows"
+        if: runner.os != 'Windows'
         run: |
           mv ${{ github.workspace }}/cjson.so ${{ github.workspace }}/cjson-${{ matrix.build_type }}.so
 
