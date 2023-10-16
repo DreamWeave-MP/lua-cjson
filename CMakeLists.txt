@@ -15,6 +15,8 @@ if(NOT CMAKE_BUILD_TYPE)
         FORCE)
 endif()
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
+
 find_package(LuaJit REQUIRED)
 include_directories(${LUA_INCLUDE_DIR})
 
