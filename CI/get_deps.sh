@@ -51,24 +51,9 @@ download() {
     fi
 }
 
+download "LuaJIT v2.1.0-beta3-452-g7a0cf5fd" \
+	 "https://gitlab.com/OpenMW/openmw-deps/-/raw/main/windows/LuaJIT-v2.1.0-beta3-452-g7a0cf5fd-msvc2019-win64.7z" \
+	 "LuaJIT-v2.1.0-beta3-452-g7a0cf5fd-msvc2019-win64.7z"
 
-if [ $TARGET_SYSTEM == "windows" ]; then
-    download "LuaJIT v2.1.0-beta3-452-g7a0cf5fd" \
-	     "https://gitlab.com/OpenMW/openmw-deps/-/raw/main/windows/LuaJIT-v2.1.0-beta3-452-g7a0cf5fd-msvc2019-win64.7z" \
-	     "LuaJIT-v2.1.0-beta3-452-g7a0cf5fd-msvc2019-win64.7z"
-
-    echo "Extracting LuaJIT . . ."
-    eval 7z x -y LuaJIT-v2.1.0-beta3-452-g7a0cf5fd-msvc2019-win64.7z -o./LuaJIT
-else
-
-    apt-get update -y && apt-get upgrade -y
-
-    apt-get install -y software-properties-common
-
-    apt-add-repository ppa:openmw/openmw
-
-    apt-get install -y \
-	    libluajit-5.1-dev \
-            luajit \
-            liblua5.1-0-dev
-fi
+echo "Extracting LuaJIT . . ."
+eval 7z x -y LuaJIT-v2.1.0-beta3-452-g7a0cf5fd-msvc2019-win64.7z -o./LuaJIT
