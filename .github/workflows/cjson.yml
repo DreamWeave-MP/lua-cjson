@@ -31,7 +31,7 @@ jobs:
       - name: Get Deps (LuaJIT)
         shell: bash
         # if: steps.cache-Lua.outputs.cache-hit != 'true'
-        run: CI/get_deps.sh
+        run: CI/get_deps.sh ${{ matrix.target_system }}
 
       - name: Configure
         shell: bash
@@ -40,8 +40,7 @@ jobs:
       - name: Build
         run: |
           cmake --build . --config ${{ matrix.build_type }}
-          echo ${{ env.build_extension }}
-          # mv ${{ env.BUILD_DIR }}/io2.dll ${{ env.BUILD_DIR }}/io2-${{ matrix.build_type }}.dll
+          # mv ${{ env.BUILD_DIR }}/cjson${{ matrix.build_extension }} ${{ env.BUILD_DIR }}/cjson${{ matrix.build_type }}${{ env.build_extension }}
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
