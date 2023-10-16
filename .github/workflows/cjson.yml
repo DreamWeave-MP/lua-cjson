@@ -16,7 +16,7 @@ jobs:
         target_system: [ ubuntu-22.04, windows-2022 ]
     runs-on: ${{ matrix.target_system }}
     env:
-      build_extension: ${{ matrix.target_system == "windows-2022" && ".dll" || ".so" }}
+      build_extension: ${{ matrix.target_system == 'windows-2022' && '.dll' || '.so' }}
       # BUILD_DIR: D:/a/Lua-io2/Lua-io2/${{ matrix.build_type}}/
 
     steps:
