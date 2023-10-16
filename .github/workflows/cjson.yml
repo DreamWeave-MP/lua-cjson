@@ -39,7 +39,7 @@ jobs:
           LUA_DIR=LuaJIT/ cmake .
 
       - name: Build
-        if: runner.os == 'Windows'
+        # if: runner.os == 'Windows'
         run: |
           cmake --build . --config ${{ matrix.build_type }}
 
