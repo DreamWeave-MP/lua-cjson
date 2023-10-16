@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         build_type: [Release, RelWithDebInfo, MinSizeRel, Debug]
-        target_system: [ windows-2022 ]
+        target_system: [ ubuntu-22.04, windows-2022 ]
     runs-on: ${{ matrix.target_system }}
     env:
       BUILD_EXT: ${{ matrix.target_system == 'windows-2022' && '.dll' || '.so' }}
