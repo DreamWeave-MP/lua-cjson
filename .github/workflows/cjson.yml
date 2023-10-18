@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         build_type: [Release, RelWithDebInfo, MinSizeRel, Debug]
-        target_system: [ ubuntu-22.04, windows-2022 ]
+        target_system: [ ubuntu-22.04, windows-2022, macos-11 ]
     runs-on: ${{ matrix.target_system }}
     env:
       BUILD_EXT: ${{ matrix.target_system == 'windows-2022' && '.dll' || '.so' }}
@@ -40,7 +40,8 @@ jobs:
         shell: bash
         if: steps.cache-Lua.outputs.cache-hit != 'true'
         run: |
-          ${{ runner.os == 'Linux' && 'sudo' || '' }} CI/get_luajit.${{runner.os}}.sh openmw-deps
+          curl -o LuaJIT.7z -L https://github.com/DreamWeave-MP/LuaJIT/releases/download/Stable-CI/LuaJIT-${{ runner.os }}.7z
+          7z x -y LuaJIT.7z -oLuaJIT/
 
       - name: Configure
         shell: bash
