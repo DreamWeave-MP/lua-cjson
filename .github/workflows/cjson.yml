@@ -60,7 +60,7 @@ jobs:
       - name: Prep Linux Release
         # if: runner.os != 'Windows'
         run: |
-          mv ${{ runner.os == 'Windows' && matrix.build_type || '.'}}/cjson.so cjson-${{ matrix.build_type }}-${{ runner.os }}.so
+          mv ${{ runner.os == 'Windows' && matrix.build_type || '.'}}/cjson.so cjson-${{ matrix.build_type }}-${{ runner.os }}${{ env.BUILD_EXT }}
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
