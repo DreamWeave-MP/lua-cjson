@@ -52,15 +52,15 @@ jobs:
         run: |
           cmake --build . --config ${{ matrix.build_type }}
 
-      - name: Prep Windows Release
-        if: runner.os == 'Windows'
-        run: |
-          mv ${{ env.BUILD_DIR }}/${{ matrix.build_type }}/cjson.dll ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}.dll
+      # - name: Prep Windows Release
+      #   if: runner.os == 'Windows'
+      #   run: |
+      #     mv ${{ env.BUILD_DIR }}/${{ matrix.build_type }}/cjson.dll ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}.dll
 
       - name: Prep Linux Release
-        if: runner.os != 'Windows'
+        # if: runner.os != 'Windows'
         run: |
-          mv cjson.so cjson-${{ matrix.build_type }}-${{ runner.os }}.so
+          mv ${{ runner.os == 'Windows' && matrix.build_type || '.'}}/cjson.so cjson-${{ matrix.build_type }}-${{ runner.os }}.so
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
