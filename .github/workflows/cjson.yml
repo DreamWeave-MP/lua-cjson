@@ -60,7 +60,7 @@ jobs:
       - name: Prep Linux Release
         if: runner.os != 'Windows'
         run: |
-          mv ${{ env.BUILD_DIR }}/cjson.so ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}.so
+          mv cjson.so cjson-${{ matrix.build_type }}.so
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
