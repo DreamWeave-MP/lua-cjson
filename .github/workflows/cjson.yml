@@ -60,14 +60,14 @@ jobs:
       - name: Prep Linux Release
         if: runner.os != 'Windows'
         run: |
-          mv cjson.so cjson-${{ matrix.build_type }}.so
+          mv cjson.so cjson-${{ matrix.build_type }}-${{ runner.os }}.so
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: Stable-CI
-          files: ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}${{ env.BUILD_EXT }}
+          files: cjson-${{ matrix.build_type }}-${{ runner.os }}${{ env.BUILD_EXT }}
           body: |
             CI Build for Dreamweave IO2 fork
 
@@ -75,5 +75,5 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v3
         with:
-          name: cjson-${{ matrix.build_type }}-${{matrix.target_system}}
-          path: ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}${{ env.BUILD_EXT }}
+          name: cjson-${{ matrix.build_type }}-${{ runner.os }}
+          path: cjson-${{ matrix.build_type }}-${{ runner.os }}${{ env.BUILD_EXT }}
