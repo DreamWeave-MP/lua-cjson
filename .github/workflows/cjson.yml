@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         build_type: [Release, RelWithDebInfo, MinSizeRel, Debug]
-        target_system: [ ubuntu-22.04, windows-2022 ]
+        target_system: [ ubuntu-22.04, windows-2022, macos-11 ]
     runs-on: ${{ matrix.target_system }}
     env:
       BUILD_EXT: ${{ matrix.target_system == 'windows-2022' && '.dll' || '.so' }}
@@ -40,7 +40,8 @@ jobs:
         shell: bash
         if: steps.cache-Lua.outputs.cache-hit != 'true'
         run: |
-          ${{ runner.os == 'Linux' && 'sudo' || '' }} CI/get_luajit.${{runner.os}}.sh openmw-deps
+          curl -o LuaJIT.7z -L https://github.com/DreamWeave-MP/LuaJIT/releases/download/Stable-CI/LuaJIT-${{ runner.os }}.7z
+          7z x -y LuaJIT.7z -oLuaJIT/
 
       - name: Configure
         shell: bash
@@ -51,22 +52,22 @@ jobs:
         run: |
           cmake --build . --config ${{ matrix.build_type }}
 
-      - name: Prep Windows Release
-        if: runner.os == 'Windows'
-        run: |
-          mv ${{ env.BUILD_DIR }}/${{ matrix.build_type }}/cjson.dll ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}.dll
+      # - name: Prep Windows Release
+      #   if: runner.os == 'Windows'
+      #   run: |
+      #     mv ${{ env.BUILD_DIR }}/${{ matrix.build_type }}/cjson.dll ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}.dll
 
       - name: Prep Linux Release
-        if: runner.os != 'Windows'
+        # if: runner.os != 'Windows'
         run: |
-          mv ${{ env.BUILD_DIR }}/cjson.so ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}.so
+          mv ${{ runner.os == 'Windows' && matrix.build_type || '.'}}/cjson${{ env.BUILD_EXT }} cjson-${{ matrix.build_type }}-${{ runner.os }}${{ env.BUILD_EXT }}
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: Stable-CI
-          files: ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}${{ env.BUILD_EXT }}
+          files: cjson-${{ matrix.build_type }}-${{ runner.os }}${{ env.BUILD_EXT }}
           body: |
             CI Build for Dreamweave IO2 fork
 
@@ -74,5 +75,5 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v3
         with:
-          name: cjson-${{ matrix.build_type }}-${{matrix.target_system}}
-          path: ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}${{ env.BUILD_EXT }}
+          name: cjson-${{ matrix.build_type }}-${{ runner.os }}
+          path: cjson-${{ matrix.build_type }}-${{ runner.os }}${{ env.BUILD_EXT }}
