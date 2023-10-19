@@ -44,20 +44,22 @@ jobs:
           7z x -y LuaJIT.7z -oLuaJIT/
 
       - name: Configure
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           LUA_DIR=LuaJIT/ cmake .
+
+      - name: Configure
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          LUA_DIR=LuaJIT/ cmake . -G 'MinGW Makefiles'
 
       - name: Build
         run: |
           cmake --build . --config ${{ matrix.build_type }}
 
-      # - name: Prep Windows Release
-      #   if: runner.os == 'Windows'
-      #   run: |
-      #     mv ${{ env.BUILD_DIR }}/${{ matrix.build_type }}/cjson.dll ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}.dll
-
-      - name: Prep Linux Release
+      - name: Prep Release
         # if: runner.os != 'Windows'
         run: |
           mv ${{ runner.os == 'Windows' && matrix.build_type || '.'}}/cjson${{ env.BUILD_EXT }} cjson-${{ matrix.build_type }}-${{ runner.os }}${{ env.BUILD_EXT }}
