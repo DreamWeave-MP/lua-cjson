@@ -22,6 +22,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: UCRT64
+          update: true
+          install: git mingw-w64-ucrt-x86_64-gcc
+
       - name: Prime ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
