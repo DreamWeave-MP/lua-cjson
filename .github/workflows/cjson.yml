@@ -58,9 +58,11 @@ jobs:
 
       - name: Configure
         if: runner.os == 'Windows'
-        shell: msys2 {0}
+        shell: bash
+        # shell: msys2 {0}
         run: |
-          LUA_DIR=LuaJIT/ cmake . -G 'MinGW Makefiles'
+          which gcc
+          LUA_DIR=LuaJIT/ CC=$(which gcc) cmake . -G 'MinGW Makefiles'
 
       - name: Build
         run: |
