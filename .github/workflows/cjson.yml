@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ${{ runner.os == 'Linux' && 'apt-cache' || 'LuaJIT' }}
+            LuaJIT
           key: ${{ runner.os }}-Lua
 
       - name: Get Deps (LuaJIT)
@@ -59,9 +59,7 @@ jobs:
       - name: Configure
         if: runner.os == 'Windows'
         shell: bash
-        # shell: msys2 {0}
         run: |
-          which gcc
           LUA_DIR=LuaJIT/ CC=$(which gcc) cmake . -G 'MinGW Makefiles'
 
       - name: Build
@@ -69,10 +67,8 @@ jobs:
           cmake --build . --config ${{ matrix.build_type }}
 
       - name: Prep Release
-        # if: runner.os != 'Windows'
         run: |
           mv cjson${{ env.BUILD_EXT }} cjson-${{ matrix.build_type }}-${{ runner.os }}${{ env.BUILD_EXT }}
-          # mv ${{ runner.os == 'Windows' && matrix.build_type || '.'}}/
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
