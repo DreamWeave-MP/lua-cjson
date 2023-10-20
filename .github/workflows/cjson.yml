@@ -22,6 +22,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: UCRT64
+          update: true
+          install: git mingw-w64-ucrt-x86_64-gcc
+
       - name: Prime ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
@@ -33,7 +40,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ${{ runner.os == 'Linux' && 'apt-cache' || 'LuaJIT' }}
+            LuaJIT
           key: ${{ runner.os }}-Lua
 
       - name: Get Deps (LuaJIT)
@@ -44,23 +51,24 @@ jobs:
           7z x -y LuaJIT.7z -oLuaJIT/
 
       - name: Configure
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           LUA_DIR=LuaJIT/ cmake .
+
+      - name: Configure
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          LUA_DIR=LuaJIT/ CC=$(which gcc) cmake . -G 'MinGW Makefiles'
 
       - name: Build
         run: |
           cmake --build . --config ${{ matrix.build_type }}
 
-      # - name: Prep Windows Release
-      #   if: runner.os == 'Windows'
-      #   run: |
-      #     mv ${{ env.BUILD_DIR }}/${{ matrix.build_type }}/cjson.dll ${{ env.BUILD_DIR }}/cjson-${{ matrix.build_type }}.dll
-
-      - name: Prep Linux Release
-        # if: runner.os != 'Windows'
+      - name: Prep Release
         run: |
-          mv ${{ runner.os == 'Windows' && matrix.build_type || '.'}}/cjson${{ env.BUILD_EXT }} cjson-${{ matrix.build_type }}-${{ runner.os }}${{ env.BUILD_EXT }}
+          mv cjson${{ env.BUILD_EXT }} cjson-${{ matrix.build_type }}-${{ runner.os }}${{ env.BUILD_EXT }}
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
