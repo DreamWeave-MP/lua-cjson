@@ -29,11 +29,11 @@ jobs:
           update: true
           install: git mingw-w64-ucrt-x86_64-gcc
 
-      - name: Prime ccache
-        uses: hendrikmuhs/ccache-action@v1.2
-        with:
-          key: ${{ matrix.target_system }}-${{ matrix.build_type }}
-          max-size: 1000M
+      # - name: Prime ccache
+      #   uses: hendrikmuhs/ccache-action@v1.2
+      #   with:
+      #     key: ${{ matrix.target_system }}-${{ matrix.build_type }}
+      #     max-size: 1000M
 
       - name: Cache LuaJIT
         id: cache-Lua
