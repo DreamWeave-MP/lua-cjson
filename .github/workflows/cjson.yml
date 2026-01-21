@@ -72,7 +72,7 @@ jobs:
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: Stable-CI
           files: cjson-${{ matrix.build_type }}-${{ runner.os }}${{ env.BUILD_EXT }}
@@ -81,7 +81,7 @@ jobs:
 
       - name: Upload Artifact
         if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: cjson-${{ matrix.build_type }}-${{ runner.os }}
           path: cjson-${{ matrix.build_type }}-${{ runner.os }}${{ env.BUILD_EXT }}
