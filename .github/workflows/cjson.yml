@@ -46,7 +46,7 @@ jobs:
         shell: bash
         if: steps.cache-Lua.outputs.cache-hit != 'true'
         run: |
-          curl -o LuaJIT.7z -L https://github.com/DreamWeave-MP/LuaJIT/releases/download/Stable-CI/LuaJIT-${{ runner.os }}.7z
+          curl -o LuaJIT.7z -L https://github.com/DreamWeave-MP/luajit2/releases/download/Stable-CI/LuaJIT-${{ runner.os }}.7z
           7z x -y LuaJIT.7z -oLuaJIT/
 
       - name: Configure
