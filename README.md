@@ -14,6 +14,9 @@ Table of Contents
     * [array_mt](#array_mt)
     * [empty_array_mt](#empty_array_mt)
     * [encode_number_precision](#encode_number_precision)
+    * [encode_escape_forward_slash](#encode_escape_forward_slash)
+    * [encode_skip_unsupported_value_types](#encode_skip_unsupported_value_types)
+    * [encode_indent](#encode_indent)
     * [decode_array_with_array_mt](#decode_array_with_array_mt)
 
 Description
@@ -173,6 +176,72 @@ encode_number_precision
 **syntax:** `cjson.encode_number_precision(precision)`
 
 This fork allows encoding of numbers with a `precision` up to 16 decimals (vs. 14 in mpx/lua-cjson).
+
+[Back to TOC](#table-of-contents)
+
+encode_escape_forward_slash
+---------------------------
+**syntax:** `cjson.encode_escape_forward_slash(enabled)`
+
+**default:** true
+
+If enabled, forward slash '/' will be encoded as '\\/'.
+
+If disabled, forward slash '/' will be encoded as '/' (no escape is applied).
+
+[Back to TOC](#table-of-contents)
+
+encode_skip_unsupported_value_types
+---------------------------
+**syntax:** `cjson.encode_skip_unsupported_value_types(enabled)`
+
+**default:** false
+
+If enabled, cjson will not throw exception when there are unsupported types
+in the Lua table.
+
+For example:
+
+```lua
+local ffi = require "ffi"
+local cjson = require "cjson"
+cjson.encode_skip_unsupported_value_types(true)
+local t = {key = "val"}
+
+t.cdata = ffi.new("char[?]", 100)
+print(cjson.encode(t))
+```
+
+This will generate:
+
+```json
+{"key":"val"}
+```
+
+[Back to TOC](#table-of-contents)
+
+encode_indent
+----------------------------
+**syntax:** `cjson.encode_indent(indent)`
+
+If non-empty string provided, JSON values encoded by `cjson.encode()` will be
+formatted in a human-readable way, using `indent` for indentation
+at each nesting level. Also enables newlines and a space after colons.
+
+Example:
+
+```lua
+local cjson = require "cjson"
+
+cjson.encode_indent("  ")
+print(cjson.encode({ a = 1, b = { c = 2 } }))
+-- {
+--   "a": 1,
+--   "b": {
+--     "c": 2
+--   }
+-- }
+```
 
 [Back to TOC](#table-of-contents)
 

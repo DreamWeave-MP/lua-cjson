@@ -66,8 +66,9 @@ print(cjson.encode({arr = empty_arr}))
 === TEST 6: empty_array_mt and empty tables as objects (explicit)
 --- lua
 local cjson = require "cjson"
+local sort_json = require "tests.sort_json"
 local empty_arr = setmetatable({}, cjson.empty_array_mt)
-print(cjson.encode({obj = {}, arr = empty_arr}))
+print(sort_json(cjson.encode({obj = {}, arr = empty_arr})))
 --- out
 {"arr":[],"obj":{}}
 
@@ -76,6 +77,7 @@ print(cjson.encode({obj = {}, arr = empty_arr}))
 === TEST 7: empty_array_mt and empty tables as objects (explicit)
 --- lua
 local cjson = require "cjson"
+local sort_json = require "tests.sort_json"
 cjson.encode_empty_table_as_object(true)
 local empty_arr = setmetatable({}, cjson.empty_array_mt)
 local data = {
@@ -88,15 +90,16 @@ local data = {
     }
   }
 }
-print(cjson.encode(data))
+print(sort_json(cjson.encode(data)))
 --- out
-{"foo":{"foobar":{"obj":{},"arr":[]},"obj":{}},"arr":[]}
+{"arr":[],"foo":{"foobar":{"arr":[],"obj":{}},"obj":{}}}
 
 
 
 === TEST 8: empty_array_mt on non-empty tables
 --- lua
 local cjson = require "cjson"
+local sort_json = require "tests.sort_json"
 cjson.encode_empty_table_as_object(true)
 local array = {"hello", "world", "lua"}
 setmetatable(array, cjson.empty_array_mt)
@@ -110,9 +113,9 @@ local data = {
     }
   }
 }
-print(cjson.encode(data))
+print(sort_json(cjson.encode(data)))
 --- out
-{"foo":{"foobar":{"obj":{},"arr":[]},"obj":{}},"arr":["hello","world","lua"]}
+{"arr":["hello","world","lua"],"foo":{"foobar":{"arr":[],"obj":{}},"obj":{}}}
 
 
 
@@ -284,3 +287,90 @@ print(string.format("%16.0f", cjson.decode("9007199254740992")))
 9.007199254741e+15
 9007199254740992
 9007199254740992
+
+
+
+=== TEST 21: / in string
+--- lua
+local cjson = require "cjson"
+local a={test = "http://google.com/google"}
+local b=cjson.encode(a)
+print(b)
+cjson.encode_escape_forward_slash(false)
+local b=cjson.encode(a)
+print(b)
+cjson.encode_escape_forward_slash(true)
+local b=cjson.encode(a)
+print(b)
+--- out
+{"test":"http:\/\/google.com\/google"}
+{"test":"http://google.com/google"}
+{"test":"http:\/\/google.com\/google"}
+
+
+
+=== TEST 22: disable error on invalid type
+--- lua
+local cjson = require "cjson"
+local f = function (x) return 2*x end
+local res, err = pcall(cjson.encode, f)
+print(err)
+local t = {f = f, valid = "valid"}
+local res, err = pcall(cjson.encode, t)
+print(err)
+local arr = {"one", "two", f, "three"}
+local res, err = pcall(cjson.encode, arr)
+print(err)
+cjson.encode_skip_unsupported_value_types(true)
+print(cjson.encode(f))
+print(cjson.encode(t))
+print(cjson.encode(arr))
+--- out
+Cannot serialise function: type not supported
+Cannot serialise function: type not supported
+Cannot serialise function: type not supported
+
+{"valid":"valid"}
+["one","two","three"]
+
+
+
+=== TEST 23: array-like proxy object with __len and __index
+--- lua
+local cjson = require "cjson"
+local real_array = {"foo", "bar", "baz"}
+local proxy_array = {}
+setmetatable(proxy_array, {
+  __len = function() return 3 end,
+  __index = function(t, k)
+    return real_array[k]
+  end,
+})
+
+print(cjson.encode(proxy_array))
+--- out
+["foo","bar","baz"]
+
+
+
+=== TEST 24: check that integers are handled correctly on Lua 5.3+
+--- lua
+local lv = tonumber((_VERSION):match("Lua 5%.([0-9]+)"))
+
+if lv >= 3 then
+  local cjson = require "cjson"
+  local array = cjson.decode [[ [10, 10.0, 3.5] ]]
+  for i = 1, 4 do
+    print(tostring(i) .. ": " .. tostring(math.type(array[i])))
+  end
+else
+  print("1: integer")
+  print("2: float")
+  print("3: float")
+  print("4: nil")
+end
+--- out
+1: integer
+2: float
+3: float
+4: nil

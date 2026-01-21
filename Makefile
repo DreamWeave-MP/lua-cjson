@@ -15,7 +15,7 @@ LUA_VERSION =       5.1
 TARGET =            cjson.so
 PREFIX =            /usr/local
 #CFLAGS =            -g -Wall -pedantic -fno-inline
-CFLAGS =            -O3 -Wall -pedantic -DNDEBUG
+CFLAGS =            -O3 -Wall -pedantic -DNDEBUG -g
 CJSON_CFLAGS =      -fpic
 CJSON_LDFLAGS =     -shared
 LUA_INCLUDE_DIR ?=   $(PREFIX)/include
@@ -84,12 +84,12 @@ OBJS =              lua_cjson.o strbuf.o $(FPCONV_OBJS)
 
 .PHONY: all clean install install-extra doc
 
-.SUFFIXES: .html .txt
+.SUFFIXES: .html .adoc
 
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(BUILD_CFLAGS) -o $@ $<
 
-.txt.html:
+.adoc.html:
 	$(ASCIIDOC) -n -a toc $<
 
 all: $(TARGET)
@@ -97,7 +97,7 @@ all: $(TARGET)
 doc: manual.html performance.html
 
 $(TARGET): $(OBJS)
-	$(CC) $(LDFLAGS) $(CJSON_LDFLAGS) -o $@ $(OBJS)
+	$(CC) -o $@ $(LDFLAGS) $(CJSON_LDFLAGS) $(OBJS)
 
 install: $(TARGET)
 	mkdir -p $(DESTDIR)$(LUA_CMODULE_DIR)

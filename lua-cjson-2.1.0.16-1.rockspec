@@ -1,9 +1,9 @@
 package = "lua-cjson"
-version = "2.1.0.6-1"
+version = "2.1.0.16-1"
 
 source = {
     url = "git+https://github.com/openresty/lua-cjson",
-    tag = "2.1.0.6",
+    tag = "2.1.0.16",
 }
 
 description = {
@@ -34,6 +34,9 @@ build = {
 -- Uncomment the line below on Solaris platforms if required.
 --                "USE_INTERNAL_ISINF"
             }
+        },
+        ["cjson.safe"] = {
+            sources = { "lua_cjson.c", "strbuf.c", "fpconv.c" }
         }
     },
     install = {
